@@ -2,31 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Activity;
+use Illuminate\Http\Request;
 
 class ActivityController extends Controller
 {
     public function index()
     {
-        $activities = Activity::all();
-        return response()->json($activities);
+        return response()->json(Activity::all());
     }
 
     public function store(Request $request)
     {
-        $data = $request->only(['user_id','category','activity','date','duration']);
-        $activity = Activity::create($data);
+        $activity = Activity::create($request->all());
         return response()->json($activity, 201);
     }
 
     public function show($id)
     {
         $activity = Activity::find($id);
-        if (!$activity) {
-            return response()->json(['error' => 'Not Found'], 404);
-        }
-        return response()->json($activity);
+        return $activity
+            ? response()->json($activity)
+            : response()->json(['error' => 'Not Found'], 404);
     }
 
     public function update(Request $request, $id)
