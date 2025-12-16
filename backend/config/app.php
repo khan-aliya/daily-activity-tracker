@@ -12,7 +12,8 @@ return [
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'key' => env('APP_KEY'),
-    'cipher' => 'AES-256-CBC',
+    'cipher' => 'AES-256-GCM',  // Changed to AES-256-GCM for PHP 8.5
+
     'maintenance' => [
         'driver' => 'file',
     ],
@@ -87,6 +88,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Vite' => Illuminate\Support\Facades\Vite::class,
     ],
 
 ];
