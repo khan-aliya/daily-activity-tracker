@@ -1,24 +1,27 @@
+
 <?php
 
 use Illuminate\Support\Str;
 
 return [
-
     'default' => env('DB_CONNECTION', 'mongodb'),
+    
     'connections' => [
-        'mongodb' => [
-            'driver' => 'mongodb',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', 27017),
-            'database' => env('DB_DATABASE', 'activity_tracker'),
-            'username' => env('DB_USERNAME', ''),
-            'password' => env('DB_PASSWORD', ''),
-            'options' => [
-                'database' => 'admin'
-            ]
-        ],
+    'mongodb' => [
+        'driver' => 'mongodb',
+        'host' => env('DB_HOST', '127.0.0.1'),
+        'port' => env('DB_PORT', 27017),
+        'database' => env('DB_DATABASE', 'activity_tracker'),
+        'username' => env('DB_USERNAME', ''),
+        'password' => env('DB_PASSWORD', ''),
+        'options' => [
+            'database' => 'admin'
+        ]
     ],
+],
+    
     'migrations' => 'migrations',
+    
     'redis' => [
         'client' => env('REDIS_CLIENT', 'phpredis'),
         'options' => [
@@ -37,10 +40,9 @@ return [
             'url' => env('REDIS_URL'),
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
-            'password' => env('DB_PASSWORD'),
+            'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
         ],
     ],
-
 ];

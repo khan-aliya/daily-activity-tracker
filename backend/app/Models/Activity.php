@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model as Eloquent;
 
-class Activity extends Model
+class Activity extends Eloquent
 {
     protected $connection = 'mongodb';
     protected $collection = 'activities';
-
+    
     protected $fillable = [
         'user_id',
         'title',
@@ -20,33 +20,18 @@ class Activity extends Model
         'notes',
         'status'
     ];
-
+    
     protected $casts = [
-        'date' => 'date',
         'duration' => 'integer',
-        'feeling' => 'integer'
+        'feeling' => 'integer',
+        'date' => 'date'
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    const CATEGORIES = [
-        'Self-care',
-        'Productivity', 
-        'Reward'
-    ];
-
-    const SUB_CATEGORIES = [
-        'Self-care' => [
-            'Yoga', 'Gym', 'Meditation', 'Spa', 'Hobby', 'Walk', 'Other'
-        ],
-        'Productivity' => [
-            'Study', 'Cleaning', 'Laundry', 'Reading', 'Cooking', 'Other'
-        ],
-        'Reward' => [
-            'Watching TV', 'Hangout with friends', 'Shopping', 'Enjoying dessert', 'Vacation', 'Other'
-        ]
+    
+    // Constants for categories (update based on your needs)
+    public const CATEGORIES = ['Self-care', 'Productivity', 'Reward'];
+    public const SUB_CATEGORIES = [
+        'Self-care' => ['Workout', 'Meditation', 'Reading', 'Sleep'],
+        'Productivity' => ['Work', 'Study', 'Cleaning', 'Projects'],
+        'Reward' => ['Gaming', 'Shopping', 'Social', 'Entertainment']
     ];
 }

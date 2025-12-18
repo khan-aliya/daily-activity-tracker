@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -25,43 +24,95 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Generate simple token
+        $token = hash('sha256', $user->email . time() . rand(1000, 9999));
+        $user->api_token = $token;
+        $user->save();
 
         return response()->json([
-            'user' => $user,
+            'user' => [
+                'id' => $user->_id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
             'token' => $token,
             'token_type' => 'Bearer',
             'message' => 'Registration successful'
         ], 201);
     }
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+   public function login(Request $request)
+{
+    try {
+        // Debug: Log what's being received
+        \Log::info('Login attempt:', $request->all());
+        
+        // Simple validation - just check if fields exist
+        if (!$request->email || !$request->password) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email and password are required'
+            ], 422);
         }
 
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Find user
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        // Check password
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        // Generate new token
+        $token = hash('sha256', $user->email . time() . rand(1000, 9999));
+        $user->api_token = $token;
+        $user->save();
 
         return response()->json([
-            'user' => $user,
+            'success' => true,
+            'message' => 'Login successful',
+            'user' => [
+                'id' => $user->_id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
             'token' => $token,
-            'token_type' => 'Bearer',
-            'message' => 'Login successful'
+            'token_type' => 'Bearer'
         ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Login error:', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Login failed: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        // Get user from token (since we're using simple token auth)
+        $token = $request->bearerToken();
+        $user = User::where('api_token', $token)->first();
+        
+        if ($user) {
+            $user->api_token = null;
+            $user->save();
+        }
 
         return response()->json([
             'message' => 'Logged out successfully'
@@ -70,6 +121,20 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        // Get user from token
+        $token = $request->bearerToken();
+        $user = User::where('api_token', $token)->first();
+        
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+        
+        return response()->json([
+            'user' => [
+                'id' => $user->_id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ]);
     }
 }

@@ -9,6 +9,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/categories', [ActivityController::class, 'categories']);
 
+// Test route
 Route::get('/test-connection', function() {
     return response()->json([
         'status' => 'success',
@@ -34,7 +35,6 @@ Route::middleware('simple.token')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     
+    // Activity routes
     Route::apiResource('activities', ActivityController::class);
-    // Route::get('/stats', [ActivityController::class, 'stats']);
-    
 });
